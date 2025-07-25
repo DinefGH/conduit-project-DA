@@ -1,0 +1,6 @@
+[submodule "frontend"]
+	path = frontend
+	url = git@github.com:DinefGH/conduit-frontend-DA.git
+[submodule "backend"]
+	path = backend
+	url = git@github.com:DinefGH/conduit-backend-DA.git
