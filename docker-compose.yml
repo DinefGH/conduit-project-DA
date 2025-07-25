@@ -2,31 +2,33 @@ version: '3.8'
 
 services:
   backend:
-    build: ./conduit-backend
-    container_name: conduit-backend
-    ports:
-      - "${BACKEND_PORT}:8000"   # host:container
-    volumes:
-      - ./conduit-backend:/app
-    environment:
-      DEBUG: "1"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     env_file:
-      - .env
-    restart: on-failure
+      - ./.env    # or move your .env here if you prefer
+    volumes:
+      - ./backend:/app                # live‑reload on code change (dev only)
+    ports:
+      - "${BACKEND_PORT:-8001}:8000"  # host:container
     networks:
-      - conduit-net
+      - app-net
 
   frontend:
-    build: ./conduit-frontend
-    container_name: conduit-frontend
-    ports:
-      - "${FRONTEND_PORT}:80"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env               # if you have frontend‑specific vars
     volumes:
-      - ./conduit-frontend:/app
-    restart: on-failure
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "${FRONTEND_PORT:-8282}:80"   # host:container
+    depends_on:
+      - backend
     networks:
-      - conduit-net
+      - app-net
 
 networks:
-  conduit-net:
+  app-net:
     driver: bridge

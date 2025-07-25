@@ -2,6 +2,7 @@
 SECRET_KEY=your-very-secret-key-here
 DEBUG=True
 ALLOWED_HOSTS=localhost,"123.456.789.000"
+DJANGO_SUPERUSER_PASSWORD=Your$tr0ngP@ssw0rd
 
 # CORS
 ALLOWED_ORIGIN=http://123.456.789.000:8282
