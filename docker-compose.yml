@@ -7,13 +7,11 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./.env
-    # Dev mount for live‑reload; you can keep this in DEV only
+    # Persist only the SQLite file
     volumes:
-      - ./backend:/app
-      # Persistent volume for the SQLite file
       - backup-data:/app/db/db.sqlite3
     ports:
-      - "${BACKEND_PORT:-8001}:8000"
+      - "8001:8000"
     networks:
       - app-net
 
@@ -23,11 +21,8 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./.env
-    # Dev mount for static content—read‑only
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
     ports:
-      - "${FRONTEND_PORT:-8282}:80"
+      - "8282:80"
     depends_on:
       - backend
     networks:
