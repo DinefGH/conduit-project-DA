@@ -4,4 +4,4 @@
 [submodule "backend"]
 	path = backend
 	url = git@github.com:DinefGH/conduit-backend-DA.git
-	branch = docker-container
+	branch = main
