@@ -30,8 +30,6 @@ services:
       - backend
     networks:
       - app-net
-    volumes:
-      - ./frontend/dist/angular-conduit:/usr/share/nginx/html:ro
     restart: on-failure
     logging:
       driver: "json-file"
