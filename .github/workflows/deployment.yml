@@ -36,7 +36,7 @@ jobs:
               git fetch --all
               git reset --hard origin/conduit-docker
             else
-              git clone https://github.com/${{ github.repository }} ${{ secrets.DEPLOY_PATH }}
+              git clone git@github.com:DinefGH/conduit-project-DA.git ${{ secrets.DEPLOY_PATH }}
               cd ${{ secrets.DEPLOY_PATH }}
               git checkout conduit-docker
             fi
