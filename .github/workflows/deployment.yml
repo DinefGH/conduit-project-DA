@@ -22,6 +22,24 @@ jobs:
           # Disable host‑key checking (optional)
           echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
+      - name: Debug SSH key and connectivity
+        run: |
+          mkdir -p ~/.ssh
+          # Write out the secret exactly as the runner sees it, strip any CRLF
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | sed 's/\r$//' > ~/.ssh/temp_id
+          chmod 600 ~/.ssh/temp_id
+
+          echo "----- Runner is offering this public key: -----"
+          ssh-keygen -y -f ~/.ssh/temp_id
+
+          echo "----- Attempting verbose SSH connection: -----"
+          ssh -vvv -o StrictHostKeyChecking=no \
+              -i ~/.ssh/temp_id \
+              -p ${{ secrets.SSH_PORT || '22' }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} exit || true
+
+
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
