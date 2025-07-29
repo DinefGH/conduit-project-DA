@@ -14,35 +14,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          # Disable host key checking (optional)
-          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+      - name: Load SSH key into agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-passphrase:   ${{ secrets.SSH_PASSPHRASE }}
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host:        ${{ secrets.SSH_HOST }}
-          username:    ${{ secrets.SSH_USER }}
-          key:         ${{ secrets.SSH_PRIVATE_KEY }}
-          port:        ${{ secrets.SSH_PORT || '22' }}
-          script: |
+        run: |
+          # Ensure SSH won’t prompt for host‑key confirmation
+          mkdir -p ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
+          # Remote deploy commands
+          ssh -o BatchMode=yes \
+              -p ${{ secrets.SSH_PORT || '22' }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             set -e
-            # If directory exists, fetch and reset to conduit-docker; otherwise clone
+
+            # Update or clone
             if [ -d "${{ secrets.DEPLOY_PATH }}" ]; then
               cd ${{ secrets.DEPLOY_PATH }}
               git fetch --all
               git reset --hard origin/conduit-docker
             else
-              git clone git@github.com:DinefGH/conduit-project-DA.git ${{ secrets.DEPLOY_PATH }}
+              git clone git@github.com:DinefGH/conduit-project-DA.git \
+                "${{ secrets.DEPLOY_PATH }}"
               cd ${{ secrets.DEPLOY_PATH }}
               git checkout conduit-docker
             fi
 
-            # Launch containers in detached mode
+            # Relaunch containers
             docker compose down || true
             docker compose pull
             docker compose up -d
