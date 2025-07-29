@@ -1,0 +1,48 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - backup-data:/app/db/db.sqlite3
+    ports:
+      - "8001:8000"
+    networks:
+      - app-net
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "8282:80"
+    depends_on:
+      - backend
+    networks:
+      - app-net
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  backup-data:
+    driver: local
