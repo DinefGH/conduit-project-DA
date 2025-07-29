@@ -31,7 +31,7 @@ services:
     networks:
       - app-net
     volumes:
-      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./frontend/dist/angular-conduit:/usr/share/nginx/html:ro
     restart: on-failure
     logging:
       driver: "json-file"
