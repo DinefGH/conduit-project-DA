@@ -25,11 +25,10 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host:       ${{ secrets.SSH_HOST }}
-          username:   ${{ secrets.SSH_USER }}
-          key:        ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port:       ${{ secrets.SSH_PORT || '22' }}
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key:      ${{ secrets.SSH_PRIVATE_KEY }}
+          port:     ${{ secrets.SSH_PORT || '22' }}
           script: |
             set -e
             if [ -d "${{ secrets.DEPLOY_PATH }}" ]; then
@@ -37,5 +36,11 @@ jobs:
               git fetch --all
               git reset --hard origin/conduit-docker
             else
-              git clone git@github.com:DinefGH/conduit-project-DA.git "${{ secrets.DEPLOY_PATH }}"
+              git clone git@github.com:DinefGH/conduit-project-DA.git \
+                "${{ secrets.DEPLOY_PATH }}"
               cd ${{ secrets.DEPLOY_PATH }}
+              git checkout conduit-docker
+            fi
+            docker compose down || true
+            docker compose pull
+            docker compose up -d
