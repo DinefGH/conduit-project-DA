@@ -7,44 +7,35 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to Remote Server
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Load SSH key into agent
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh-passphrase:   ${{ secrets.SSH_PASSPHRASE }}
-
-      - name: Deploy via SSH with explicit identity file
+      - name: Set up SSH key
         run: |
-          # Write the same key to disk so you can use -i
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/key_ed25519
-          chmod 600 ~/.ssh/key_ed25519
-
-          # Disable host‑key checking (or pin your host in known_hosts)
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          # Disable host‑key checking (optional)
           echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
-          # Now SSH exactly how you do locally:
-          ssh -i ~/.ssh/key_ed25519 \
-              -o BatchMode=yes \
-              -p ${{ secrets.SSH_PORT || '22' }} \
-              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host:       ${{ secrets.SSH_HOST }}
+          username:   ${{ secrets.SSH_USER }}
+          key:        ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port:       ${{ secrets.SSH_PORT || '22' }}
+          script: |
             set -e
             if [ -d "${{ secrets.DEPLOY_PATH }}" ]; then
               cd ${{ secrets.DEPLOY_PATH }}
               git fetch --all
               git reset --hard origin/conduit-docker
             else
-              git clone git@github.com:DinefGH/conduit-project-DA.git \
-                "${{ secrets.DEPLOY_PATH }}"
+              git clone git@github.com:DinefGH/conduit-project-DA.git "${{ secrets.DEPLOY_PATH }}"
               cd ${{ secrets.DEPLOY_PATH }}
-              git checkout conduit-docker
-            fi
-            docker compose down || true
-            docker compose pull
-            docker compose up -d
-          EOF
