@@ -61,21 +61,28 @@ Before you begin, ensure the following tools are installed on your system:
     cd conduit-project-DA
     ```
 
-2. Copy and Configure the Environment File
+2. Initialize & update submodules (frontend & backend)
 
     ```bash
-    cp .env.example .env
+    git submodule update --init --recursive
+    ```
+
+
+3. Copy and Configure the Environment File
+
+    ```bash
+    cp example-env.txt
     ```
 
     Edit .env to set your hostnames, secrets, and debug flags.
 
-3. Build & start all services
+4. Build & start all services
 
     ```bash
     docker compose up -d --build
     ```
 
-4. Access the application
+5. Access the application
 
     * Frontend: <http://localhost:8282/>
     * Backend API: <http://localhost:8001/admin/>
@@ -114,6 +121,10 @@ Before you begin, ensure the following tools are installed on your system:
     ```bash
     docker compose build --no-cache && docker compose up -d
     ```
+
+6. Generate SECRET_KEY
+
+The SECRET_KEY is the django secret key. To generate a new one see: [Stackoverflow Link](https://stackoverflow.com/questions/41298963/is-there-a-function-for-generating-settings-secret-key-in-django)
 
 ## Environment Variables
 
