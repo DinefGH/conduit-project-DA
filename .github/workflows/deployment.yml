@@ -1,12 +1,13 @@
 name: Deploy-Workflow
 
-on: 
-  push: 
-    branches: [ "conduit-docker" ]
-  
+on:
+  push:
+    branches:
+      - "conduit-docker"
+
 jobs:
-  deploy: 
-    name: Deploy to Remote Server 
+  deploy:
+    name: Deploy to Remote Server
     runs-on: ubuntu-latest
 
     steps:
@@ -24,11 +25,11 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: '22'
+          host:        ${{ secrets.SSH_HOST }}
+          username:    ${{ secrets.SSH_USER }}
+          key:         ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase:  ${{ secrets.SSH_PASSPHRASE }}
+          port:        ${{ secrets.SSH_PORT || '22' }}
           script: |
             set -e
             # If directory exists, fetch and reset to conduit-docker; otherwise clone
