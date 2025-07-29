@@ -39,7 +39,6 @@ jobs:
               ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} exit || true
 
 
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
