@@ -6,8 +6,8 @@ on:
       - "conduit-docker"
 
 permissions:
-  contents: read        
-  packages: write       
+  contents: read        # for checkout
+  packages: write       # for GHCR
 
 jobs:
   build-and-push:
@@ -15,41 +15,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code (with submodules)
+      - name: Check out code & submodules
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          # pull in backend/ and frontend/ submodules
+          submodules: recursive
           fetch-depth: 0
 
-      - name: Set up QEMU (multi‑arch, optional)
+      - name: Set up QEMU (optional, multi‑arch)
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push backend
+      - name: Build & push backend image
         uses: docker/build-push-action@v4
         with:
           context: ./backend
-          file:    Dockerfile
+          file:    ./backend/Dockerfile            # explicit path
           push:    true
-          tags:    |
+          tags: |
             ghcr.io/dinefgh/conduit-backend:latest
 
-      - name: Build & push frontend
+      - name: Build & push frontend image
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
-          file:    Dockerfile
+          file:    ./frontend/Dockerfile           # explicit path
           push:    true
-          tags:    |
+          tags: |
             ghcr.io/dinefgh/conduit-frontend:latest
 
   deploy:
@@ -58,10 +59,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code (with submodules)
+      - name: Check out code & submodules
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
           fetch-depth: 0
 
       - name: Set up SSH key
@@ -69,9 +70,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          # optional: skip host‑key prompt
           echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
-      - name: Copy compose file to server
+      - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v0.1.4
         with:
           host:     ${{ secrets.SSH_HOST }}
@@ -81,7 +83,7 @@ jobs:
           source:   "docker-compose.yml"
           target:   "${{ secrets.DEPLOY_PATH }}/docker-compose.yml"
 
-      - name: Pull & restart containers
+      - name: Pull new images & restart
         uses: appleboy/ssh-action@v0.1.7
         with:
           host:     ${{ secrets.SSH_HOST }}
@@ -91,3 +93,4 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             docker compose pull
+            docker compose up -d
