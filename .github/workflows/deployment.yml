@@ -6,8 +6,8 @@ on:
       - "conduit-docker"
 
 permissions:
-  contents: read
-  packages: write
+  contents: read        
+  packages: write       
 
 jobs:
   build-and-push:
@@ -15,10 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
+      - name: Check out code (with submodules)
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
 
-      - name: Set up QEMU (for multi‑arch, optional)
+      - name: Set up QEMU (multi‑arch, optional)
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
@@ -35,18 +38,18 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./backend
-          file: Dockerfile
-          push: true
-          tags: |
+          file:    Dockerfile
+          push:    true
+          tags:    |
             ghcr.io/dinefgh/conduit-backend:latest
 
       - name: Build & push frontend
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
-          file: Dockerfile
-          push: true
-          tags: |
+          file:    Dockerfile
+          push:    true
+          tags:    |
             ghcr.io/dinefgh/conduit-frontend:latest
 
   deploy:
@@ -55,8 +58,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
+      - name: Check out code (with submodules)
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
 
       - name: Set up SSH key
         run: |
@@ -85,4 +91,3 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             docker compose pull
-            docker compose up -d
