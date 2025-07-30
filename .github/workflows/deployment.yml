@@ -81,7 +81,7 @@ jobs:
           key:      ${{ secrets.SSH_PRIVATE_KEY }}
           port:     ${{ secrets.SSH_PORT || '22' }}
           source:   "docker-compose.yml"
-          target:   "${{ secrets.DEPLOY_PATH }}/docker-compose.yml"
+          target:   "${{ secrets.DEPLOY_PATH }}/" 
 
       - name: Pull new images & restart
         uses: appleboy/ssh-action@v0.1.7
