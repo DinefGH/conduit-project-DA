@@ -38,7 +38,7 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/conduit-backend:latest
+            ghcr.io/dinefgh/conduit-backend:latest
 
       - name: Build & push frontend
         uses: docker/build-push-action@v4
@@ -47,7 +47,7 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/conduit-frontend:latest
+            ghcr.io/dinefgh/conduit-frontend:latest
 
   deploy:
     name: Deploy to Remote Server
