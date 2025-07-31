@@ -1,8 +1,6 @@
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/dinefgh/conduit-backend:${TAG:-latest}
     env_file:
       - ./.env
     volumes:
@@ -19,9 +17,7 @@ services:
         max-file: "3"
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/dinefgh/conduit-frontend:${TAG:-latest}
     env_file:
       - ./.env
     ports:
