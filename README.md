@@ -216,4 +216,4 @@ FRONTEND_PORT=8282
 
 ---
 
-Happy coding!🚀
+Happy coding! 🚀
