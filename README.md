@@ -185,55 +185,7 @@ FRONTEND_PORT=8282
 
 * We’ve included a GitHub Actions workflow (.github/workflows/deployment.yml) that automatically deploys your conduit-docker branch to your remote server via SSH
 
-    ```bash
-    name: Deploy-Workflow
-
-    on:
-    push:
-     branches:
-         - "conduit-docker"
-
-    jobs:
-    deploy:
-        name: Deploy to Remote Server
-        runs-on: ubuntu-latest
-
-        steps:
-        - name: Checkout repository
-            uses: actions/checkout@v4
-
-        - name: Set up SSH key
-            run: |
-             mkdir -p ~/.ssh
-            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-            # Disable host‑key checking (optional)
-            echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-
-
-        - name: Deploy via SSH
-            uses: appleboy/ssh-action@v0.1.7
-            with:
-            host:     ${{ secrets.SSH_HOST }}
-            username: ${{ secrets.SSH_USER }}
-            key:      ${{ secrets.SSH_PRIVATE_KEY }}
-            port:     ${{ secrets.SSH_PORT || '22' }}
-            script: |
-                set -e
-                if [ -d "${{ secrets.DEPLOY_PATH }}" ]; then
-                cd ${{ secrets.DEPLOY_PATH }}
-                git fetch --all
-                git reset --hard origin/conduit-docker
-                else
-                git clone git@github.com:DinefGH/conduit-project-DA.git \
-                    "${{ secrets.DEPLOY_PATH }}"
-                cd ${{ secrets.DEPLOY_PATH }}
-                git checkout conduit-docker
-                fi
-                docker compose down || true
-                docker compose pull
-                docker compose up -d
-    ```
+([`.github/workflows/deployment.yml`](.github/workflows/deployment.yml))
 
 * How to use this workflow
 
