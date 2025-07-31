@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push backend image
-        uses: docker/build-push-action@v4.8.0
+        uses: docker/build-push-action@v6.15.0
         with:
           context: ./backend
           file:    ./backend/Dockerfile            
@@ -45,7 +45,7 @@ jobs:
             ghcr.io/dinefgh/conduit-backend:${{ steps.image_tag.outputs.tag || 'latest' }}
 
       - name: Build & push frontend image
-        uses: docker/build-push-action@v4.8.0
+        uses: docker/build-push-action@vv6.15.0
         with:
           context: ./frontend
           file:    ./frontend/Dockerfile           
